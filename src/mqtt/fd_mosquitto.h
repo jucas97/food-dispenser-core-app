@@ -10,6 +10,29 @@ private:
     typedef mosqpp::mosquittopp baseclass;
 
 private:
+    class config {
+    private:
+        config(const config &) = delete;
+        config(const config &&) = delete;
+        config & operator=(const config &) = delete;
+        config & operator=(const config &&) = delete;
+
+    public:
+        config();
+        ~config() = default;
+
+        void parse(const std::string &file_name);
+
+        std::string host() const
+        {
+            return m_host;
+        }
+
+    private:
+        std::string m_host;
+    };
+
+private:
     fd_mosquitto() = delete;
 
 public:
@@ -25,4 +48,5 @@ private:
 
 private:
     std::vector<std::string> m_topics;
+    config m_config;
 };

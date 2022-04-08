@@ -11,6 +11,12 @@ set(SOURCES
     src/food_disp.cxx
     src/mqtt/fd_mosquitto.cxx)
 
+if(!${CONFIG_FILE})
+    message(FATAL_ERROR "Config file not set")
+endif()
+
+add_compile_definitions(CONFIG_FILE=${CONFIG_FILE})
+
 add_executable(${PROJECT_NAME} ${SOURCES})
 
 # Specify object linkage

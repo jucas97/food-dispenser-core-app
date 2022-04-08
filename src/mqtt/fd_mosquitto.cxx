@@ -6,11 +6,37 @@
 #include "rapidjson/filereadstream.h"
 #include "rapidjson/document.h"
 
+fd_mosquitto::config::config()
+    : m_host("localhost")
+{
+}
+
+void fd_mosquitto::config::parse(const std::string &file_name)
+{
+    FILE *file;
+    rapidjson::Document document;
+    char buffer[500];
+
+    file = fopen(file_name.c_str(), "r");
+    rapidjson::FileReadStream input_stream{file, buffer, sizeof(buffer)};
+    document.ParseStream(input_stream);
+
+    if (!document.HasMember("host")) {
+        std::cout << "Failure, can not proceed without host" << std::endl;
+        goto cleanup;
+    }
+    m_host = document["host"].GetString();
+
+cleanup:
+    fclose(file);
+}
+
 fd_mosquitto::fd_mosquitto(std::vector<std::string> &topics)
     : m_topics(topics)
     , m_config()
 {
     mosqpp::lib_init();
+    m_config.parse(CONFIG_FILE);
 }
 
 fd_mosquitto::~fd_mosquitto()
@@ -21,7 +47,7 @@ fd_mosquitto::~fd_mosquitto()
 
 int fd_mosquitto::connect()
 {
-    return baseclass::connect("localhost");
+    return baseclass::connect(m_config.host().c_str());
 }
 
 void fd_mosquitto::on_connect(int rc)
