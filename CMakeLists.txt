@@ -20,8 +20,10 @@ add_compile_definitions(CONFIG_FILE=${CONFIG_FILE})
 add_executable(${PROJECT_NAME} ${SOURCES})
 
 # Specify object linkage
-target_link_libraries(${PROJECT_NAME} PUBLIC
-    mosquittopp)
+target_link_libraries(${PROJECT_NAME} PRIVATE
+    mosquittopp
+    encrypt
+)
 
 # Install executables on packages output
 install(TARGETS ${PROJECT_NAME}
