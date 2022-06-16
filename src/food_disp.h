@@ -40,6 +40,7 @@ public:
     ~food_disp();
 
     int state_machine(steps step);
+    void mqtt_message_callback(uint64_t);
 
 private:
     config m_config;

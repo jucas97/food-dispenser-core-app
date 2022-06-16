@@ -1,4 +1,5 @@
 #include <iostream>
+#include <functional>
 
 #include "food_disp.h"
 #include "rapidjson/filereadstream.h"
@@ -33,6 +34,7 @@ cleanup:
 
 food_disp::food_disp()
     : m_config()
+    , m_mosq(nullptr)
 {
     std::cout << "FD Constructor" << std::endl;
 }
@@ -50,7 +52,7 @@ int food_disp::state_machine(steps step)
             break;
         case steps::CONNECT_MQTT: {
             std::vector<std::string> topics{"test"};
-            m_mosq = std::make_shared<fd_mosquitto>(topics, m_config.m_host);
+            m_mosq = std::make_shared<fd_mosquitto>(topics, m_config.m_host, std::bind(&food_disp::mqtt_message_callback, this, std::placeholders::_1));
             return m_mosq->connect(m_config.m_user, m_config.m_pw);
         }
         case steps::LOOP_MQTT:
@@ -62,6 +64,11 @@ int food_disp::state_machine(steps step)
     }
 
     return 0;
+}
+
+void food_disp::mqtt_message_callback(uint64_t duty_cycle)
+{
+    std::cout << "Received duty cycle " << duty_cycle << std::endl;
 }
 
 int main(int argc, char *argv[])

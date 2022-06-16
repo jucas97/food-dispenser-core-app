@@ -1,12 +1,18 @@
 #include <iostream>
+#include <algorithm>
 #include <cstdio>
+#include <cstring>
 
 #include "fd_mosquitto.h"
 #include "c_crypt.h"
 
-fd_mosquitto::fd_mosquitto(std::vector<std::string> &topics, const std::string &host)
+/* duty cycle in ns + end of string char */
+static constexpr int PAYLOAD_MAX_SIZE = 8;
+
+fd_mosquitto::fd_mosquitto(std::vector<std::string> &topics, const std::string &host, message_callback_t callback)
     : m_topics(topics)
     , m_host(host)
+    , m_callback(callback)
 {
     mosqpp::lib_init();
 }
@@ -52,7 +58,32 @@ void fd_mosquitto::on_subscribe(int mid, int qos_count, const int *qos_list)
     std::cout << "Subscribed" << std::endl;
 }
 
+bool fd_mosquitto::safe_alpha_num_conversion(const char *message)
+{
+    std::string message_str{message};
+
+    std::string::const_iterator message_it = find_if(message_str.begin(), message_str.end(), [](auto c){
+        return (bool)std::isalpha(c);
+    });
+
+    return message_it == message_str.end();
+}
+
 void fd_mosquitto::on_message(const struct mosquitto_message *message)
 {
-    std::cout << "Received message for topic " << message->topic << std::endl;
+    // Topic to be checked
+    char buffer[PAYLOAD_MAX_SIZE];
+
+    if (message->payload == nullptr) {
+        std::cout << "Empty payload" << std::endl;
+        return;
+    }
+
+    memset(static_cast<void *>(&buffer), 0, PAYLOAD_MAX_SIZE);
+    memcpy(static_cast<void *>(&buffer), message->payload, PAYLOAD_MAX_SIZE);
+
+    if (safe_alpha_num_conversion(buffer)) {
+        uint64_t value = strtoul(&buffer[0], NULL, 10);
+        m_callback(value);
+    }
 }
