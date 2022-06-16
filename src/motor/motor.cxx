@@ -24,6 +24,7 @@ motor::~motor()
     // Resoures cleanup
     if (m_control.enabled) {
         m_control.enabled = false;
+        apply_state();
     }
     cleanup();
 }
@@ -53,6 +54,33 @@ int motor::initialize_channel()
     }
 
     return NO_ERROR;
+}
+
+int motor::apply_state()
+{
+    int ret;
+
+    if ((ret = ioctl(m_fd, FOOD_DISP_IOCTL_PWM_APPLY_STATE, &m_control)) != 0) {
+        std::cout << "Error, return code: " << ret << std::endl;
+        return IOCTL_ERROR;
+    }
+
+    return NO_ERROR;
+}
+
+void motor::period(uint64_t &frequency)
+{
+    m_control.period = frequency;
+}
+
+void motor::duty_cycle(uint64_t &duty_cycle)
+{
+    m_control.duty_cycle = duty_cycle;
+}
+
+void motor::state(bool enabled)
+{
+    m_control.enabled = enabled;
 }
 
 void motor::cleanup()

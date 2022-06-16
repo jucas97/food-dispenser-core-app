@@ -16,6 +16,10 @@ public:
     int open_device(const std::string &);
     void cleanup();
     int initialize_channel();
+    int apply_state();
+    void period(uint64_t &);
+    void duty_cycle(uint64_t &);
+    void state(bool);
 
 private:
     int m_fd;

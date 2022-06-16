@@ -83,6 +83,11 @@ int food_disp::state_machine(steps step)
 void food_disp::mqtt_message_callback(uint64_t duty_cycle)
 {
     std::cout << "Received duty cycle " << duty_cycle << std::endl;
+    if (m_motor != nullptr) {
+        m_motor->duty_cycle(duty_cycle);
+        m_motor->state(true);
+        m_motor->apply_state();
+    }
 }
 
 int main(int argc, char *argv[])
