@@ -4,6 +4,7 @@
 
 #include "food_disp_types.h"
 #include "mqtt/fd_mosquitto.h"
+#include "motor/motor.h"
 
 class food_disp {
 private:
@@ -27,6 +28,9 @@ private:
         std::string m_host;
         std::vector<int> m_user;
         std::vector<int> m_pw;
+        int m_channel;
+        uint64_t m_period;
+        std::string m_device;
     };
 
 private:
@@ -45,4 +49,5 @@ public:
 private:
     config m_config;
     std::shared_ptr<fd_mosquitto> m_mosq;
+    std::shared_ptr<motor> m_motor;
 };

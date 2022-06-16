@@ -9,7 +9,11 @@ set(CMAKE_CXX_STANDARD_REQUIRED True)
 
 set(SOURCES
     src/food_disp.cxx
-    src/mqtt/fd_mosquitto.cxx)
+    src/mqtt/fd_mosquitto.cxx
+    src/motor/motor.cxx
+)
+
+include_directories(src)
 
 if(!${CONFIG_FILE})
     message(FATAL_ERROR "Config file not set")
